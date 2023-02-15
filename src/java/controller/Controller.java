@@ -12,6 +12,7 @@ import entities.Provincia;
 import entities.Punto;
 import entities.PuntoView;
 import entities.Usuario;
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -20,17 +21,25 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
+import javax.persistence.NoResultException;
 import javax.persistence.Query;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
+import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import javax.servlet.http.Part;
 import util.JPAUtil;
 
 @WebServlet("/Controller")
+@MultipartConfig(
+  fileSizeThreshold = 1024 * 1024 * 1, // 1 MB
+  maxFileSize = 1024 * 1024 * 10,      // 10 MB
+  maxRequestSize = 1024 * 1024 * 100   // 100 MB
+)
 public class Controller extends HttpServlet {
 
     private static final long serialVersionUID = 1L;
@@ -131,12 +140,23 @@ public class Controller extends HttpServlet {
         } else if (op.equals("login")) {
             String nick = request.getParameter("nick");
             String pass = request.getParameter("pass");
+            /* Receive file uploaded */
+            File directory = new File(getServletContext().getRealPath("/"));
+            Part filePart = request.getPart("avatar");
+            String fileName = filePart.getSubmittedFileName();
+            for (Part part : request.getParts()) {
+              part.write(directory.getPath()+"/img/" + fileName);
+            }
 
             q = em.createQuery("SELECT u FROM Usuario u WHERE u.nick = '"+nick+"' AND u.pass = '"+pass+"'");
-            usuario = (Usuario) q.getSingleResult();
+            try {
+                usuario = (Usuario) q.getSingleResult();
+            } catch (NoResultException e) {
+            }
+            
 
             if (usuario==null) { // Login incorrecto procedemos a insertarlo
-                usuario = new Usuario(Short.MIN_VALUE);
+                usuario = new Usuario(Short.valueOf("1"));
                 usuario.setNick(nick);
                 usuario.setPass(pass);
                 EntityTransaction t = em.getTransaction();

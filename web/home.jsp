@@ -126,15 +126,19 @@
       <div class="modal-header">
         <h5 class="modal-title" id="exampleModalLabel">Login/Register</h5>
       </div>
-      <form action="Controller?op=login" method="POST">
+      <form action="Controller?op=login" method="POST" enctype="multipart/form-data">
         <div class="modal-body">
               <div class="form-group">
-                <label for="exampleInputEmail1">Nick</label>
+                <label for="nick">Nick</label>
                 <input type="text" class="form-control" name="nick" placeholder="Enter Nick" required="">
               </div>
               <div class="form-group">
-                <label for="exampleInputPassword1">Password</label>
+                <label for="pass">Password</label>
                 <input type="password" class="form-control" name="pass" placeholder="Enter Paswword" required="">
+              </div>
+              <div class="form-group">
+                <label for="avatar">Avatar</label>
+                <input type="file" class="form-control" name="avatar" placeholder="Enter Paswword" required="">
               </div>
         </div>
         <div class="modal-footer">
